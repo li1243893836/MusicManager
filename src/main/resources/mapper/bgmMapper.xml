@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itly.mapper.BgmMapper">
+    <insert id="insert" parameterType="BgmVo" useGeneratedKeys="true" keyProperty="bgmName" keyColumn="bgm_name">
+          insert into bgmtab(bgm_name,bgm_author,bgm_album,bgm_path,user_id) value(#{bgmName},#{bgmAuthor},#{bgmAlbum},#{bgmPath},#{userId})
+    </insert>
+    <delete id="delete" parameterType="java.util.List">
+        DELETE FROM bgmtab WHERE bgm_id in
+        <foreach collection="list" item="bgm" separator="," open="(" close=")" >
+            #{bgm.bgmId}
+        </foreach>
+    </delete>
+    <select id="queryAll" resultType="BgmVo" parameterType="BgmVo">
+        select  * from bgmtab
+        <where>
+            <if test="bgmName!=null and bgmName!=''">
+                and bgm_name LIKE '%' #{bgmName} '%'
+            </if>
+            <if test="bgmAuthor!=null and bgmAuthor!=''">
+                and bgm_author LIKE '%' #{bgmAuthor} '%'
+            </if>
+        </where>
+    </select>
+</mapper>

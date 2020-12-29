@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">影片</label>
+        <div class="layui-input-block">
+            <input type="text" name="filmName" lay-verify="required" lay-reqtext="影片名不能为空" placeholder="请输入影片名" value="" class="layui-input">
+            <tip>填写电影名称</tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">影片信息</label>
+        <div class="layui-input-block">
+            <input type="text" name="filmInfo" lay-verify="required" lay-reqtext="影片信息不能为空" placeholder="请输入影片信息" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">影片状态</label>
+        <div class="layui-input-block">
+            <input type="text" name="filmStatus" placeholder="请输入影片状态" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">上传时间</label>
+        <div class="layui-input-block">
+            <input type="datetime-local" name="createTime" placeholder="请输入上传时间" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户ID</label>
+        <div class="layui-input-block">
+            <input type="text" name="userId" placeholder="请输入用户ID" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <label class="layui-form-label" >影片上传</label>
+        <button type="button" class="layui-btn" id="test1"  >选择影片</button>
+        <div class="layui-upload-list ">
+            <img class="layui-upload-img"style="margin-left:150px" id="demo1">
+        </div>
+        <button id="hideUpload" type="button" style="display: none"></button>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认上传</button>
+        </div>
+    </div>
+</div>
+<script src="../../lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form','upload'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload,
+            $ = layui.$;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            $.ajax({
+                type:"post",
+                url:"/film/insert",
+                data:data.field,
+                success:function (map) {
+                    if (map.msg == 1){
+                        /*var iframeIndex = parent.layer.getFrameIndex(window.name);
+                      //添加信息，刷新
+                       parent.location.reload();
+                       parent.layer.close(iframeIndex);*/
+                        $('#hideUpload').trigger('click');
+                        $("input[name='filmName']").val(map.msg);
+                    }else{
+                        layer.msg("添加失败!")
+                    }
+                }
+            });
+
+            /*var index = layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            }, function () {
+
+                // 关闭弹出层
+                layer.close(index);
+
+                var iframeIndex = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(iframeIndex);
+
+            });
+*/
+            return false;
+        });
+        //图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'         //绑定点击按钮
+            ,url: '/film/upload'     //访问后台路径
+            ,accept: 'video'               //歌曲格式
+            ,auto:false                     //取消自动上传
+            ,method: 'get'                 //请求上传的 http 类型
+            ,bindAction:'#hideUpload'       //绑定真正的上传按钮
+            //data属性在layui2.01中已经淘汰，接参不稳定，慎用
+            // ,data:{
+            //     userName:$("#userName").val()
+            // }
+            ,before: function (obj) {
+                this.data = { 'filmName': $("input[name='filmName']").val()};
+            }
+            ,done: function(map){
+                alert(map.msg);
+                //如果上传失败
+                if(map.msg == null){
+                    return layer.msg('电影上传失败！');
+                }
+                //上传成功
+                layer.msg("电影上传成功!", {
+                    time: 1000
+                }, function() {
+                    //重新加载页面
+                    var iframeIndex = parent.layer.getFrameIndex(window.name);
+                    parent.location.reload();
+                    parent.layer.close(iframeIndex);
+                });
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    // uploadInst.upload();
+                });
+            }
+
+        });
+    });
+</script>
+</body>
+</html>

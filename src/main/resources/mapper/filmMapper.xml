@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itly.mapper.FilmMapper">
+    <insert id="insert" parameterType="FilmVo" useGeneratedKeys="true" keyProperty="filmName" keyColumn="film_name">
+          insert into filmtab(film_name,film_info,film_path,like_counts,film_status,create_time,user_id) value(#{filmName},#{filmInfo},#{filmPath},#{likeCounts},#{filmStatus},#{createTime},#{userId})
+    </insert>
+    <delete id="delete" parameterType="java.util.List">
+        DELETE FROM filmtab WHERE film_id in
+        <foreach collection="list" item="film" separator="," open="(" close=")" >
+            #{film.filmId}
+        </foreach>
+    </delete>
+    <select id="queryAll" resultType="FilmVo" parameterType="FilmVo">
+        select  * from filmtab
+        <where>
+            <if test="filmName!=null and filmName!=''">
+                and film_name LIKE '%' #{filmName} '%'
+            </if>
+            <if test="filmInfo!=null and filmInfo!=''">
+                and film_info LIKE '%' #{filmInfo} '%'
+            </if>
+        </where>
+    </select>
+</mapper>
